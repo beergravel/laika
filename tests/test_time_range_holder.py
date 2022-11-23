@@ -32,12 +32,18 @@ class TestTimeRangeHolder(unittest.TestCase):
         self.assertFalse(time in holder)
 
     def test_merge_ranges(self):
-        first_range = (GPSTime.from_datetime(datetime(2020, 5, 1)),
-                       GPSTime.from_datetime(datetime(2020, 5, 3)))
-        second_range = (GPSTime.from_datetime(datetime(2020, 5, 7)),
-                       GPSTime.from_datetime(datetime(2020, 5, 9)))
-        merge_range = (GPSTime.from_datetime(datetime(2020, 5, 2)),
-                       GPSTime.from_datetime(datetime(2020, 5, 8)))
+        first_range = (
+            GPSTime.from_datetime(datetime(2020, 5, 1)),
+            GPSTime.from_datetime(datetime(2020, 5, 3)),
+        )
+        second_range = (
+            GPSTime.from_datetime(datetime(2020, 5, 7)),
+            GPSTime.from_datetime(datetime(2020, 5, 9)),
+        )
+        merge_range = (
+            GPSTime.from_datetime(datetime(2020, 5, 2)),
+            GPSTime.from_datetime(datetime(2020, 5, 8)),
+        )
         time = GPSTime.from_datetime(datetime(2020, 5, 5))
 
         holder = TimeRangeHolder()
@@ -51,10 +57,14 @@ class TestTimeRangeHolder(unittest.TestCase):
         self.assertTrue(time in holder)
 
     def test_extend_range_left(self):
-        range_ = (GPSTime.from_datetime(datetime(2020, 5, 7)),
-                  GPSTime.from_datetime(datetime(2020, 5, 9)))
-        merge_range = (GPSTime.from_datetime(datetime(2020, 5, 3)),
-                       GPSTime.from_datetime(datetime(2020, 5, 7)))
+        range_ = (
+            GPSTime.from_datetime(datetime(2020, 5, 7)),
+            GPSTime.from_datetime(datetime(2020, 5, 9)),
+        )
+        merge_range = (
+            GPSTime.from_datetime(datetime(2020, 5, 3)),
+            GPSTime.from_datetime(datetime(2020, 5, 7)),
+        )
         time = GPSTime.from_datetime(datetime(2020, 5, 5))
 
         holder = TimeRangeHolder()
@@ -67,10 +77,14 @@ class TestTimeRangeHolder(unittest.TestCase):
         self.assertTrue(time in holder)
 
     def test_extend_range_right(self):
-        merge_range = (GPSTime.from_datetime(datetime(2020, 5, 7)),
-                  GPSTime.from_datetime(datetime(2020, 5, 9)))
-        range_ = (GPSTime.from_datetime(datetime(2020, 5, 3)),
-                  GPSTime.from_datetime(datetime(2020, 5, 7)))
+        merge_range = (
+            GPSTime.from_datetime(datetime(2020, 5, 7)),
+            GPSTime.from_datetime(datetime(2020, 5, 9)),
+        )
+        range_ = (
+            GPSTime.from_datetime(datetime(2020, 5, 3)),
+            GPSTime.from_datetime(datetime(2020, 5, 7)),
+        )
         time = GPSTime.from_datetime(datetime(2020, 5, 8))
 
         holder = TimeRangeHolder()
