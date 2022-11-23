@@ -31,45 +31,50 @@ class ObservationKind:
     PSEUDORANGE_RATE = 23
 
     names = [
-        'Unknown',
-        'No observation',
-        'GPS NED',
-        'Odometric speed',
-        'Phone gyro',
-        'GPS velocity',
-        'GPS pseudorange',
-        'GPS pseudorange rate',
-        'Speed',
-        'No rotation',
-        'Phone acceleration',
-        'ORB point',
-        'ECEF pos',
-        'ORB odometry translation',
-        'ORB odometry rotation',
-        'ORB features',
-        'MSCKF test',
-        'Feature track test',
-        'Lane ecef point',
-        'imu frame eulers',
-        'GLONASS pseudorange',
-        'GLONASS pseudorange rate'
+        "Unknown",
+        "No observation",
+        "GPS NED",
+        "Odometric speed",
+        "Phone gyro",
+        "GPS velocity",
+        "GPS pseudorange",
+        "GPS pseudorange rate",
+        "Speed",
+        "No rotation",
+        "Phone acceleration",
+        "ORB point",
+        "ECEF pos",
+        "ORB odometry translation",
+        "ORB odometry rotation",
+        "ORB features",
+        "MSCKF test",
+        "Feature track test",
+        "Lane ecef point",
+        "imu frame eulers",
+        "GLONASS pseudorange",
+        "GLONASS pseudorange rate",
     ]
+
     @classmethod
     def to_string(cls, kind):
         return cls.names[kind]
 
 
-SAT_OBS = [ObservationKind.PSEUDORANGE_GPS,
-           ObservationKind.PSEUDORANGE_RATE_GPS,
-           ObservationKind.PSEUDORANGE_GLONASS,
-           ObservationKind.PSEUDORANGE_RATE_GLONASS]
+SAT_OBS = [
+    ObservationKind.PSEUDORANGE_GPS,
+    ObservationKind.PSEUDORANGE_RATE_GPS,
+    ObservationKind.PSEUDORANGE_GLONASS,
+    ObservationKind.PSEUDORANGE_RATE_GLONASS,
+]
 
 
 def run_car_ekf_offline(kf, observations_by_kind):
     observations = []
     # create list of observations with element format: [kind, time, data]
     for kind in observations_by_kind:
-        for t, data in zip(observations_by_kind[kind][0], observations_by_kind[kind][1]):
+        for t, data in zip(
+            observations_by_kind[kind][0], observations_by_kind[kind][1]
+        ):
             observations.append([t, kind, data])
     observations.sort(key=lambda obs: obs[0])
 
@@ -90,26 +95,47 @@ def run_car_ekf_offline(kf, observations_by_kind):
             continue
         if kind not in observations_dict:
             observations_dict[kind] = {}
-            observations_dict[kind]['t'] = np.array(len(z) * [t])
-            observations_dict[kind]['z'] = np.array(z)
-            observations_dict[kind]['ea'] = np.array(ea)
-            observations_dict[kind]['residual'] = np.array(res)
+            observations_dict[kind]["t"] = np.array(len(z) * [t])
+            observations_dict[kind]["z"] = np.array(z)
+            observations_dict[kind]["ea"] = np.array(ea)
+            observations_dict[kind]["residual"] = np.array(res)
         else:
-            observations_dict[kind]['t'] = np.append(observations_dict[kind]['t'], np.array(len(z) * [t]))
-            observations_dict[kind]['z'] = np.vstack((observations_dict[kind]['z'], np.array(z)))
-            observations_dict[kind]['ea'] = np.vstack((observations_dict[kind]['ea'], np.array(ea)))
-            observations_dict[kind]['residual'] = np.vstack((observations_dict[kind]['residual'], np.array(res)))
+            observations_dict[kind]["t"] = np.append(
+                observations_dict[kind]["t"], np.array(len(z) * [t])
+            )
+            observations_dict[kind]["z"] = np.vstack(
+                (observations_dict[kind]["z"], np.array(z))
+            )
+            observations_dict[kind]["ea"] = np.vstack(
+                (observations_dict[kind]["ea"], np.array(ea))
+            )
+            observations_dict[kind]["residual"] = np.vstack(
+                (observations_dict[kind]["residual"], np.array(res))
+            )
 
     # add svIds to gnss data
     for kind in map(str, SAT_OBS):
         if int(kind) in observations_by_kind and kind in observations_dict:
-            observations_dict[kind]['svIds'] = np.array([])
-            observations_dict[kind]['CNO'] = np.array([])
-            observations_dict[kind]['std'] = np.array([])
+            observations_dict[kind]["svIds"] = np.array([])
+            observations_dict[kind]["CNO"] = np.array([])
+            observations_dict[kind]["std"] = np.array([])
             for obs in observations_by_kind[int(kind)][1]:
-                observations_dict[kind]['svIds'] = np.append(observations_dict[kind]['svIds'], np.array([obs[:, GNSSMeasurement.PRN]]))
-                observations_dict[kind]['std'] = np.append(observations_dict[kind]['std'], np.array([obs[:, GNSSMeasurement.PR_STD]]))
-    return smoothed_states, smoothed_covs, forward_states, forward_covs, times, observations_dict
+                observations_dict[kind]["svIds"] = np.append(
+                    observations_dict[kind]["svIds"],
+                    np.array([obs[:, GNSSMeasurement.PRN]]),
+                )
+                observations_dict[kind]["std"] = np.append(
+                    observations_dict[kind]["std"],
+                    np.array([obs[:, GNSSMeasurement.PR_STD]]),
+                )
+    return (
+        smoothed_states,
+        smoothed_covs,
+        forward_states,
+        forward_covs,
+        times,
+        observations_dict,
+    )
 
 
 def run_observations_through_filter(kf, observations, filter_time=None):
